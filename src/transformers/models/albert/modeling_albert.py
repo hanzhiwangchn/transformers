@@ -214,10 +214,12 @@ class AlbertEmbeddings(nn.Module):
 
         # position_ids (1, len position emb) is contiguous in memory and exported when serialized
         self.register_buffer("position_ids", torch.arange(config.max_position_embeddings).expand((1, -1)))
-        self.position_embedding_type = config.position_embedding_type
+        self.position_embedding_type = getattr(config, "position_embedding_type", "absolute")
 
     # Copied from transformers.models.bert.modeling_bert.BertEmbeddings.forward
-    def forward(self, input_ids=None, token_type_ids=None, position_ids=None, inputs_embeds=None):
+    def forward(
+        self, input_ids=None, token_type_ids=None, position_ids=None, inputs_embeds=None, past_key_values_length=0
+    ):
         if input_ids is not None:
             input_shape = input_ids.size()
         else:
@@ -226,7 +228,7 @@ class AlbertEmbeddings(nn.Module):
         seq_length = input_shape[1]
 
         if position_ids is None:
-            position_ids = self.position_ids[:, :seq_length]
+            position_ids = self.position_ids[:, past_key_values_length : seq_length + past_key_values_length]
 
         if token_type_ids is None:
             token_type_ids = torch.zeros(input_shape, dtype=torch.long, device=self.position_ids.device)
@@ -268,7 +270,7 @@ class AlbertAttention(nn.Module):
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
         self.pruned_heads = set()
 
-        self.position_embedding_type = config.position_embedding_type
+        self.position_embedding_type = getattr(config, "position_embedding_type", "absolute")
         if self.position_embedding_type == "relative_key" or self.position_embedding_type == "relative_key_query":
             self.max_position_embeddings = config.max_position_embeddings
             self.distance_embedding = nn.Embedding(2 * config.max_position_embeddings - 1, self.attention_head_size)
@@ -632,12 +634,6 @@ class AlbertModel(AlbertPreTrainedModel):
     def set_input_embeddings(self, value):
         self.embeddings.word_embeddings = value
 
-    def _resize_token_embeddings(self, new_num_tokens):
-        old_embeddings = self.embeddings.word_embeddings
-        new_embeddings = self._get_resized_embeddings(old_embeddings, new_num_tokens)
-        self.embeddings.word_embeddings = new_embeddings
-        return self.embeddings.word_embeddings
-
     def _prune_heads(self, heads_to_prune):
         """
         Prunes heads of the model. heads_to_prune: dict of {layer_num: list of heads to prune in this layer} ALBERT has
@@ -747,6 +743,9 @@ class AlbertForPreTraining(AlbertPreTrainedModel):
 
     def get_output_embeddings(self):
         return self.predictions.decoder
+
+    def set_output_embeddings(self, new_embeddings):
+        self.predictions.decoder = new_embeddings
 
     def get_input_embeddings(self):
         return self.albert.embeddings.word_embeddings
@@ -888,6 +887,9 @@ class AlbertForMaskedLM(AlbertPreTrainedModel):
 
     def get_output_embeddings(self):
         return self.predictions.decoder
+
+    def set_output_embeddings(self, new_embeddings):
+        self.predictions.decoder = new_embeddings
 
     def get_input_embeddings(self):
         return self.albert.embeddings.word_embeddings
