@@ -25,32 +25,57 @@ assignees: ''
  If you know how to use git blame, that is the easiest way, otherwise, here is a rough guide of **who to tag**.
  Please tag fewer than 3 people.
 
- albert, bert, GPT2, XLM: @LysandreJik
- tokenizers: @mfuntowicz
- Trainer: @sgugger
- Speed and Memory Benchmarks: @patrickvonplaten
- Model Cards: @julien-c
- TextGeneration: @TevenLeScao
- examples/distillation: @VictorSanh
- nlp datasets: [different repo](https://github.com/huggingface/nlp)
- rust tokenizers: [different repo](https://github.com/huggingface/tokenizers)
- Text Generation: @patrickvonplaten @TevenLeScao
- Blenderbot: @patrickvonplaten
- Bart: @patrickvonplaten
- Marian: @patrickvonplaten
- Pegasus: @patrickvonplaten
- mBART: @patrickvonplaten
- T5: @patrickvonplaten
- Longformer/Reformer: @patrickvonplaten
- TransfoXL/XLNet: @TevenLeScao
- RAG: @patrickvonplaten, @lhoestq
- FSMT: @stas00
- examples/seq2seq: @patil-suraj
- examples/bert-loses-patience: @JetRunner
- ray/raytune: @richardliaw @amogkam
- tensorflow: @jplu
- examples/token-classification: @stefan-it
- documentation: @sgugger
+Models:
+
+- ALBERT, BERT, XLM, DeBERTa, DeBERTa-v2, ELECTRA, MobileBert, SqueezeBert: @LysandreJik
+- T5, Pegasus, EncoderDecoder: @patrickvonplaten
+- Blenderbot, MBART, BART, Marian, Pegasus: @patil-suraj
+- Reformer, TransfoXL, XLNet, FNet: @patrickvonplaten
+- Longformer, BigBird: @ydshieh
+- FSMT: @stas00
+- Funnel: @sgugger
+- GPT-2, GPT: @patil-suraj, @patrickvonplaten, @LysandreJik
+- RAG, DPR: @patrickvonplaten, @lhoestq
+- TensorFlow: @Rocketknight1
+- JAX/Flax: @patil-suraj
+- TAPAS, LayoutLM, LayoutLMv2, LUKE, ViT, BEiT, DEiT, DETR, CANINE: @NielsRogge
+- GPT-Neo, GPT-J, CLIP: @patil-suraj
+- Wav2Vec2, HuBERT, SpeechEncoderDecoder, UniSpeech, UniSpeechSAT, SEW, SEW-D, Speech2Text: @patrickvonplaten, @anton-l
+
+If the model isn't in the list, ping @LysandreJik who will redirect you to the correct contributor.
+
+Library:
+
+- Benchmarks: @patrickvonplaten
+- Deepspeed: @stas00
+- Ray/raytune: @richardliaw, @amogkam
+- Text generation: @patrickvonplaten @narsil
+- Tokenizers: @SaulLu
+- Trainer: @sgugger
+- Pipelines: @Narsil
+- Speech: @patrickvonplaten, @anton-l
+- Vision: @NielsRogge, @sgugger
+
+Documentation: @sgugger
+
+Model hub:
+
+- for issues with a model, report at https://discuss.huggingface.co/ and tag the model's creator.
+
+HF projects:
+
+- datasets: [different repo](https://github.com/huggingface/datasets)
+- rust tokenizers: [different repo](https://github.com/huggingface/tokenizers)
+
+Examples:
+
+- maintained examples (not research project or legacy): @sgugger, @patil-suraj
+
+For research projetcs, please ping the contributor directly. For example, on the following projects:
+
+- research_projects/bert-loses-patience: @JetRunner
+- research_projects/distillation: @VictorSanh
+
  -->
 
 ## Information
