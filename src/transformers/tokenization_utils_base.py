@@ -24,6 +24,7 @@ import os
 import re
 import warnings
 from collections import OrderedDict, UserDict
+from collections.abc import Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Dict, List, NamedTuple, Optional, Sequence, Tuple, Union
@@ -503,7 +504,8 @@ class BatchEncoding(UserDict):
                 the sequence.
 
         Returns:
-            [`~tokenization_utils_base.CharSpan`]: Span of characters in the original string.
+            [`~tokenization_utils_base.CharSpan`]: Span of characters in the original string, or None, if the token
+            (e.g. <s>, </s>) doesn't correspond to any chars in the origin string.
         """
 
         if not self._encodings:
@@ -513,7 +515,9 @@ class BatchEncoding(UserDict):
         else:
             batch_index = 0
             token_index = batch_or_token_index
-        return CharSpan(*(self._encodings[batch_index].token_to_chars(token_index)))
+        span_indices = self._encodings[batch_index].token_to_chars(token_index)
+
+        return CharSpan(*span_indices) if span_indices is not None else None
 
     def char_to_token(
         self, batch_or_char_index: int, char_index: Optional[int] = None, sequence_index: int = 0
@@ -1150,35 +1154,35 @@ class SpecialTokensMixin:
 
     @bos_token_id.setter
     def bos_token_id(self, value):
-        self._bos_token = self.convert_tokens_to_ids(value)
+        self._bos_token = self.convert_ids_to_tokens(value) if value is not None else None
 
     @eos_token_id.setter
     def eos_token_id(self, value):
-        self._eos_token = self.convert_tokens_to_ids(value)
+        self._eos_token = self.convert_ids_to_tokens(value) if value is not None else None
 
     @unk_token_id.setter
     def unk_token_id(self, value):
-        self._unk_token = self.convert_tokens_to_ids(value)
+        self._unk_token = self.convert_ids_to_tokens(value) if value is not None else None
 
     @sep_token_id.setter
     def sep_token_id(self, value):
-        self._sep_token = self.convert_tokens_to_ids(value)
+        self._sep_token = self.convert_ids_to_tokens(value) if value is not None else None
 
     @pad_token_id.setter
     def pad_token_id(self, value):
-        self._pad_token = self.convert_tokens_to_ids(value)
+        self._pad_token = self.convert_ids_to_tokens(value) if value is not None else None
 
     @cls_token_id.setter
     def cls_token_id(self, value):
-        self._cls_token = self.convert_tokens_to_ids(value)
+        self._cls_token = self.convert_ids_to_tokens(value) if value is not None else None
 
     @mask_token_id.setter
     def mask_token_id(self, value):
-        self._mask_token = self.convert_tokens_to_ids(value)
+        self._mask_token = self.convert_ids_to_tokens(value) if value is not None else None
 
     @additional_special_tokens_ids.setter
     def additional_special_tokens_ids(self, values):
-        self._additional_special_tokens = [self.convert_tokens_to_ids(value) for value in values]
+        self._additional_special_tokens = [self.convert_ids_to_tokens(value) for value in values]
 
     @property
     def special_tokens_map(self) -> Dict[str, Union[str, List[str]]]:
@@ -2765,7 +2769,7 @@ class PreTrainedTokenizerBase(SpecialTokensMixin, PushToHubMixin):
         """
         # If we have a list of dicts, let's convert it in a dict of lists
         # We do this to allow using this method as a collate_fn function in PyTorch Dataloader
-        if isinstance(encoded_inputs, (list, tuple)) and isinstance(encoded_inputs[0], (dict, BatchEncoding)):
+        if isinstance(encoded_inputs, (list, tuple)) and isinstance(encoded_inputs[0], Mapping):
             encoded_inputs = {key: [example[key] for example in encoded_inputs] for key in encoded_inputs[0].keys()}
 
         # The model's main input name, usually `input_ids`, has be passed for padding
